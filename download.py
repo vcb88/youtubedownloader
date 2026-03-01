@@ -1,10 +1,10 @@
 import argparse
-from pytube import YouTube
-from pytube.cli import on_progress
+import yt_dlp
+import os
 
 def download_video(url, output_path, resolution):
     """
-    Downloads a YouTube video.
+    Downloads a YouTube video using yt-dlp.
 
     Args:
         url (str): The URL of the YouTube video.
@@ -13,30 +13,23 @@ def download_video(url, output_path, resolution):
                           If None, the highest resolution is chosen.
     """
     try:
-        print(f"Connecting to YouTube...")
-        yt = YouTube(url, on_progress_callback=on_progress)
+        print(f"Connecting to YouTube (via yt-dlp)...")
+        
+        # Mapping resolution to yt-dlp format
+        # Best video + best audio if resolution not specified
+        format_str = f"bestvideo[height<={resolution[:-1]}]+bestaudio/best[height<={resolution[:-1]}]" if resolution else "best"
 
-        print(f"Fetching streams for '{yt.title}'...")
-        if resolution:
-            stream = yt.streams.filter(res=resolution, progressive=True).first()
-            if not stream:
-                print(f"Resolution {resolution} not available for this video.")
-                print("Falling back to the highest available resolution.")
-                stream = yt.streams.get_highest_resolution()
-        else:
-            stream = yt.streams.get_highest_resolution()
+        ydl_opts = {
+            'format': format_str,
+            'outtmpl': os.path.join(output_path, '%(title)s.%(ext)s'),
+            'quiet': False,
+            'no_warnings': False,
+        }
 
-        if not stream:
-            print("No suitable stream found for this video.")
-            return
-
-        print(f"Downloading: {yt.title}")
-        print(f"Resolution: {stream.resolution}")
-        print(f"File size: {stream.filesize / 1_000_000:.2f} MB")
-        print(f"Saving to: {output_path}")
-
-        stream.download(output_path=output_path)
-        print("\nDownload completed successfully!")
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+            print(f"\nDownload completed successfully: {filename}")
 
     except Exception as e:
         print(f"\nAn error occurred: {e}")
@@ -52,9 +45,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--resolution",
         default=None,
-        help="The desired video resolution (e.g., '720p', '1080p'). Defaults to the highest available.",
+        help="The desired video resolution (e.g., '720p', '1080p'). Defaults to the best available.",
     )
 
     args = parser.parse_args()
+
+    # Ensure output path exists
+    if not os.path.exists(args.path):
+        os.makedirs(args.path)
 
     download_video(args.url, args.path, args.resolution)
