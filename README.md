@@ -1,67 +1,46 @@
 # YouTube Downloader
 
-A simple, yet powerful command-line utility to download YouTube videos.
+A simple, yet powerful command-line utility to download YouTube videos, now powered by `yt-dlp` for superior reliability and performance.
 
-## Description
+### 📚 Detailed Documentation
+For a full guide on advanced usage, custom resolutions (1080p, 4K), and common troubleshooting, see the **[USER_GUIDE.md](USER_GUIDE.md)**.
 
-This script allows you to download videos from YouTube by providing a URL. You can specify the output path and the desired video resolution.
+---
 
-## Installation
+## 🚀 Quick Help
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/vcb88/youtubedownloader.git
-    cd youtubedownloader
-    ```
-
-2.  **Create and activate a virtual environment:**
-    ```bash
-    python3 -m venv venv
-    source venv/bin/activate
-    ```
-
-3.  **Install the dependencies:**
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Usage
-
-The script is run from the command line. The only required argument is the YouTube video URL.
-
-**Basic Usage:**
-Downloads the video in the highest available resolution to the current directory.
+### 1. Installation
 ```bash
-python3 download.py "YOUTUBE_VIDEO_URL"
+git clone https://github.com/vcb88/youtubedownloader.git
+cd youtubedownloader
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-**Specify Output Path:**
-Use the `--path` flag to save the video to a specific directory.
+### 2. Basic Usage (720p Default)
 ```bash
-python3 download.py "YOUTUBE_VIDEO_URL" --path /path/to/your/videos/
+python3 download.py "URL"
 ```
 
-**Specify Resolution:**
-Use the `--resolution` flag to download the video in a specific resolution (e.g., `720p`, `1080p`). If the specified resolution is not available, the script will fall back to the highest available resolution.
+### 3. High Resolution (1080p/4K)
+*Requires `ffmpeg` installed on your system.*
 ```bash
-python3 download.py "YOUTUBE_VIDEO_URL" --resolution 720p
+python3 download.py "URL" --resolution 1080p
+python3 download.py "URL" --resolution 2160p
 ```
 
-## Docker Usage
+---
 
-You can also run this utility in a Docker container.
+## 🐳 Docker Support
 
-1.  **Build the Docker image:**
-    ```bash
-    docker build -t youtube-downloader .
-    ```
+If you don't want to install dependencies locally:
+1.  **Build:** `docker build -t yt-down .`
+2.  **Run:** `docker run --rm -v $(pwd)/downloads:/app/downloads yt-down "URL" --path /app/downloads`
 
-2.  **Run the container:**
-    To download a video, you need to mount a local directory to the container to store the downloaded file.
+---
 
-    ```bash
-    docker run --rm -v $(pwd)/videos:/app/videos youtube-downloader "YOUTUBE_VIDEO_URL" --path /app/videos
-    ```
-    *   This command mounts a `videos` directory from your current working directory into the container.
-    *   The `--rm` flag automatically removes the container when it exits.
-    *   Make sure to create the `videos` directory first: `mkdir videos`.
+## 🛠 Features
+- **Reliable:** Migrated from `pytube` to `yt-dlp`.
+- **Flexible:** Custom output paths and resolutions.
+- **Robust:** Automatic directory creation and error handling.
+- **Dockerized:** Ready for containerized environments.
